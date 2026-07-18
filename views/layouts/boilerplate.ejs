@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GLB Mafia</title>
+
+    <!-- Bootstrap CSS -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Google Font -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+
+    <link rel="stylesheet" href="/css/boilerplate.css">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top glb-navbar">
+
+        <div class="container">
+
+            <!-- LOGO -->
+
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
+
+                <span class="brand-icon">📚</span>
+
+                <span>GLB Mafia</span>
+
+            </a>
+
+            <!-- TOGGLER -->
+
+            <button 
+                class="navbar-toggler border-0"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
+            <!-- NAV LINKS -->
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <!-- LEFT SIDE -->
+
+                <ul class="navbar-nav me-auto align-items-lg-center gap-lg-2">
+
+                    <li class="nav-item">
+
+                        <a class="nav-link" href="/">
+
+                            <i class="bi bi-house-door me-1"></i>
+
+                            Home
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link" href="/home/new">
+
+                            <i class="bi bi-plus-square me-1"></i>
+
+                            Add Resource
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link" href="/faculty">
+
+                            <i class="bi bi-person-badge me-1"></i>
+
+                            Faculty
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link" href="/fee-structure">
+
+                            <i class="bi bi-cash-coin me-1"></i>
+
+                            Fee Structure
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link" href="/about">
+
+                            <i class="bi bi-info-circle me-1"></i>
+
+                            About Us
+
+                        </a>
+
+                    </li>
+
+                    <% if(currentUser && currentUser.role === "admin") { %>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link" href="/admin/dashboard">
+
+                            <i class="bi bi-shield-lock me-1"></i>
+
+                            Admin
+
+                        </a>
+
+                    </li>
+
+                    <% } %>
+
+                </ul>
+
+                <!-- RIGHT SIDE -->
+
+                <div class="d-flex gap-2 mt-3 mt-lg-0">
+
+    <% if(currentUser) { %>
+
+        <a href="/auth/logout" class="btn btn-signup">
+            <i class="bi bi-box-arrow-right me-1"></i>
+            Logout
+        </a>
+
+    <% } else { %>
+
+        <a href="/auth/login" class="btn btn-login">
+            <i class="bi bi-box-arrow-in-right me-1"></i>
+            Login
+        </a>
+
+        <a href="/auth/signup" class="btn btn-signup">
+            <i class="bi bi-person-plus me-1"></i>
+            Sign Up
+        </a>
+
+    <% } %>
+
+</div>
+            </div>
+
+        </div>
+
+    </nav>
+
+
+<div class="container mt-3" style="position:relative; z-index:9999;">
+    <%- include("../includes/flash.ejs") %>
+</div>
+
+    <!-- MAIN -->
+
+    <main>
+
+        <%- body %>
+
+    </main>
+
+    <!-- FOOTER -->
+
+    <footer class="glb-footer text-center py-4 mt-5">
+
+        <div class="container">
+
+            <p class="mb-0 text-light">
+
+                © 2026 <strong>GLB Mafia</strong> · Made with ❤️ by Rehan
+
+            </p>
+
+        </div>
+
+    </footer>
+
+    <!-- Bootstrap JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Socket.io client -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <!-- Notification toast UI -->
+    <div id="notif-toast" style="
+        display:none;
+        position:fixed;
+        bottom:1.5rem;
+        right:1.5rem;
+        z-index:99999;
+        min-width:320px;
+        background:linear-gradient(135deg,#667eea,#764ba2);
+        color:#fff;
+        border-radius:12px;
+        padding:1rem 1.2rem;
+        box-shadow:0 8px 24px rgba(0,0,0,0.18);
+        font-family:'Poppins',sans-serif;
+        animation: slideIn 0.3s ease;
+    ">
+        <div style="display:flex;align-items:flex-start;gap:0.8rem;">
+            <span style="font-size:1.5rem;">🔔</span>
+            <div style="flex:1;">
+                <strong style="display:block;margin-bottom:0.2rem;">Resource Available!</strong>
+                <span id="notif-toast-msg" style="font-size:0.9rem;opacity:0.92;"></span>
+            </div>
+            <button onclick="document.getElementById('notif-toast').style.display='none'"
+                style="background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:0;line-height:1;">✕</button>
+        </div>
+        <a id="notif-toast-link" href="/home" style="
+            display:inline-block;
+            margin-top:0.6rem;
+            background:rgba(255,255,255,0.22);
+            color:#fff;
+            border-radius:6px;
+            padding:0.3rem 0.8rem;
+            font-size:0.85rem;
+            text-decoration:none;
+            font-weight:600;
+        ">View Resource →</a>
+    </div>
+
+    <style>
+    @keyframes slideIn {
+        from { opacity:0; transform:translateY(20px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+    </style>
+
+    <script>
+    (function(){
+        const socket = io();
+
+        // Register logged-in user with their userId so server can target them
+        <% if(currentUser){ %>
+            socket.emit("register", "<%= currentUser._id %>");
+        <% } %>
+
+        socket.on("resourceUploaded", function(data){
+            const toast   = document.getElementById("notif-toast");
+            const msg     = document.getElementById("notif-toast-msg");
+            const link    = document.getElementById("notif-toast-link");
+
+            msg.textContent = data.message;
+
+            // Build a direct link to the resource listing
+            const encoded = encodeURIComponent(data.subject);
+            link.href = "/resource/" + data.type + "/" + encoded + "/" + data.unit;
+
+            toast.style.display = "block";
+
+            // Auto-hide after 8 seconds
+            setTimeout(function(){
+                toast.style.display = "none";
+            }, 8000);
+        });
+    })();
+    </script>
+
+</body>
+
+</html>

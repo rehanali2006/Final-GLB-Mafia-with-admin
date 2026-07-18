@@ -1,0 +1,137 @@
+.fee-hero {
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  padding: 50px 20px 60px;
+  text-align: center;
+  clip-path: ellipse(120% 100% at 50% 0%);
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.fee-hero h1 {
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.fee-hero p {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: #a78bfa;
+}
+
+.fee-table-wrapper {
+  background: #fff;
+  border-radius: 18px;
+  padding: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+}
+
+.fee-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fee-table th,
+.fee-table td {
+  padding: 14px 18px;
+  text-align: left;
+}
+
+.fee-table thead th {
+  background: #f5f3ff;
+  color: #4c3a8f;
+  font-weight: 700;
+}
+
+.fee-table tbody tr:not(:last-child) {
+  border-bottom: 1px solid #eee;
+}
+
+.delete-fee-btn {
+  background: #fdecea;
+  color: #e74c3c;
+  border: none;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.add-fee-section {
+  background: #fff;
+  border-radius: 18px;
+  padding: 28px 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.add-fee-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-row label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-row input,
+.form-row select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  font-family: 'Poppins', sans-serif;
+}
+
+.submit-fee-btn {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.fee-note {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.login-to-add {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.login-to-add .btn-notify {
+  display: inline-block;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+}

@@ -1,0 +1,107 @@
+<% layout('layouts/boilerplate') %>
+<link rel="stylesheet" href="/css/feeStructure.css">
+
+<div class="fee-hero">
+    <h1>💰 Fee Structure</h1>
+    <p>Total college & hostel fee, year-wise</p>
+</div>
+
+<div class="container pb-5">
+
+    <% if(fees.length === 0){ %>
+
+        <div class="empty-state">
+            <i class="bi bi-cash-coin"></i>
+            <h2>No fee details added yet</h2>
+            <p>Add the total fee for each year using the form below.</p>
+        </div>
+
+    <% } else { %>
+
+        <div class="fee-table-wrapper">
+            <table class="fee-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>College Fee</th>
+                        <th>Hostel Fee</th>
+                        <th>Total</th>
+                        <% if(currentUser){ %><th></th><% } %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% fees.forEach(fee => { %>
+                        <tr>
+                            <td>Year <%= fee.year %></td>
+                            <td>₹ <%= fee.collegeFee.toLocaleString("en-IN") %></td>
+                            <td>₹ <%= fee.hostelFee.toLocaleString("en-IN") %></td>
+                            <td><strong>₹ <%= (fee.collegeFee + fee.hostelFee).toLocaleString("en-IN") %></strong></td>
+                            <% if(currentUser){ %>
+                                <td>
+                                    <form action="/fee-structure/<%= fee._id %>?_method=DELETE" method="POST">
+                                        <button type="submit" class="delete-fee-btn" title="Remove entry">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            <% } %>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+    <% } %>
+
+    <!-- ADD / UPDATE FEE FORM -->
+    <div class="add-fee-section mt-5">
+
+        <h3 class="mb-3">➕ Add / Update Fee for a Year</h3>
+
+        <% if(currentUser){ %>
+
+            <form action="/fee-structure" method="POST" class="add-fee-form">
+
+                <div class="form-row">
+                    <label>Year</label>
+                    <select name="year" required>
+                        <option value="" disabled selected>Select Year</option>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label>Total College Fee (₹)</label>
+                    <input type="number" name="collegeFee" min="0" placeholder="e.g. 150000" required>
+                </div>
+
+                <div class="form-row">
+                    <label>Total Hostel Fee (₹)</label>
+                    <input type="number" name="hostelFee" min="0" placeholder="e.g. 100000 (0 if not applicable)">
+                </div>
+
+                <button type="submit" class="submit-fee-btn">
+                    Save Fee Details
+                </button>
+
+            </form>
+
+            <p class="fee-note">
+                Note: Adding a year that already exists will update its fee instead of duplicating it.
+            </p>
+
+        <% } else { %>
+
+            <div class="login-to-add">
+                <p>You need to be logged in to add or update fee details.</p>
+                <a href="/auth/login" class="btn-notify">Login</a>
+            </div>
+
+        <% } %>
+
+    </div>
+
+</div>

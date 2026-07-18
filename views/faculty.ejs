@@ -1,0 +1,158 @@
+<% layout('layouts/boilerplate') %>
+<link rel="stylesheet" href="/css/faculty.css">
+
+<div class="faculty-hero">
+    <h1>👩‍🏫 Faculty Directory</h1>
+    <p>Find your subject teacher's cabin, block & office details</p>
+</div>
+
+<div class="container pb-5">
+
+    <!-- SEARCH -->
+    <form method="GET" action="/faculty" class="faculty-search mb-4">
+        <input
+            type="text"
+            name="subject"
+            placeholder="Search by subject e.g. Data Structures"
+            value="<%= subject %>"
+        >
+        <button type="submit">
+            <i class="bi bi-search me-1"></i> Search
+        </button>
+        <% if(subject){ %>
+            <a href="/faculty" class="clear-link">Clear</a>
+        <% } %>
+    </form>
+
+    <!-- TEACHER LIST -->
+    <% if(teachers.length === 0){ %>
+
+        <div class="empty-state">
+            <i class="bi bi-person-x"></i>
+            <h2>No teacher found</h2>
+            <p>
+                <% if(subject){ %>
+                    No teacher matched "<%= subject %>". Try a different subject, or add one below.
+                <% } else { %>
+                    No teacher details have been added yet. Add the first one below.
+                <% } %>
+            </p>
+        </div>
+
+    <% } else { %>
+
+        <div class="teacher-grid">
+            <% teachers.forEach(teacher => { %>
+                <div class="teacher-card">
+
+                    <% if(currentUser){ %>
+                        <form action="/faculty/<%= teacher._id %>?_method=DELETE" method="POST" class="delete-teacher-form">
+                            <button type="submit" class="delete-teacher-btn" title="Remove entry">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    <% } %>
+
+                    <div class="teacher-avatar">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+
+                    <h3><%= teacher.name %></h3>
+                    <p class="teacher-subject"><%= teacher.subject %></p>
+                    <% if(teacher.designation){ %>
+                        <span class="teacher-designation"><%= teacher.designation %></span>
+                    <% } %>
+
+                    <div class="teacher-details">
+                        <div>
+                            <i class="bi bi-building"></i>
+                            <span>Block <%= teacher.block %></span>
+                        </div>
+                        <div>
+                            <i class="bi bi-layers"></i>
+                            <span><%= teacher.officeFloor %></span>
+                        </div>
+                        <div>
+                            <i class="bi bi-door-closed"></i>
+                            <span>Cabin <%= teacher.cabinNumber %></span>
+                        </div>
+                        <div>
+                            <i class="bi bi-calendar3"></i>
+                            <span><%= teacher.yearsOfTeaching %> yrs teaching</span>
+                        </div>
+                    </div>
+
+                </div>
+            <% }) %>
+        </div>
+
+    <% } %>
+
+    <!-- ADD TEACHER FORM -->
+    <div class="add-teacher-section mt-5">
+
+        <h3 class="mb-3">➕ Add Teacher Details</h3>
+
+        <% if(currentUser){ %>
+
+            <form action="/faculty" method="POST" class="add-teacher-form">
+
+                <div class="form-row">
+                    <label>Teacher Name</label>
+                    <input type="text" name="name" placeholder="e.g. Mrs. Sunita Sharma" required>
+                </div>
+
+                <div class="form-row">
+                    <label>Subject</label>
+                    <input type="text" name="subject" placeholder="e.g. Data Structures" required>
+                </div>
+
+                <div class="form-row">
+                    <label>Designation (optional)</label>
+                    <input type="text" name="designation" placeholder="e.g. Assistant Professor">
+                </div>
+
+                <div class="form-row">
+                    <label>Years of Teaching</label>
+                    <input type="number" name="yearsOfTeaching" min="0" placeholder="e.g. 5" required>
+                </div>
+
+                <div class="form-row">
+                    <label>Block Building</label>
+                    <select name="block" required>
+                        <option value="" disabled selected>Select Block</option>
+                        <option value="A">Block A</option>
+                        <option value="B">Block B</option>
+                        <option value="C">Block C</option>
+                        <option value="D">Block D</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label>Office Floor</label>
+                    <input type="text" name="officeFloor" placeholder="e.g. 2nd Floor" required>
+                </div>
+
+                <div class="form-row">
+                    <label>Cabin Number</label>
+                    <input type="text" name="cabinNumber" placeholder="e.g. B-204" required>
+                </div>
+
+                <button type="submit" class="submit-teacher-btn">
+                    Save Teacher Details
+                </button>
+
+            </form>
+
+        <% } else { %>
+
+            <div class="login-to-add">
+                <p>You need to be logged in to add teacher details.</p>
+                <a href="/auth/login" class="btn-notify">Login</a>
+            </div>
+
+        <% } %>
+
+    </div>
+
+</div>

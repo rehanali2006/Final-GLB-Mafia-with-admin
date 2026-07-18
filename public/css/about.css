@@ -1,0 +1,108 @@
+.about-hero {
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  padding: 50px 20px 60px;
+  text-align: center;
+  clip-path: ellipse(120% 100% at 50% 0%);
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.about-hero h1 {
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.about-hero p {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.about-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 28px 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+}
+
+.about-card h2 {
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+  color: #1a1a2e;
+}
+
+.about-card p {
+  color: #444;
+  line-height: 1.6;
+}
+
+.contact-links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.contact-btn:hover {
+  opacity: 0.88;
+  color: #fff;
+}
+
+.contact-btn.whatsapp {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+}
+
+.support-card {
+  text-align: center;
+}
+
+.qr-placeholder {
+  max-width: 240px;
+  margin: 20px auto;
+  padding: 30px 20px;
+  border: 2px dashed #c7bfe8;
+  border-radius: 16px;
+  background: #faf9ff;
+  color: #764ba2;
+}
+
+.qr-placeholder i {
+  font-size: 3rem;
+}
+
+.qr-placeholder p {
+  color: #4c3a8f;
+  font-weight: 600;
+  margin: 10px 0 4px;
+}
+
+.qr-placeholder span {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.qr-image {
+  max-width: 240px;
+  width: 100%;
+  border-radius: 16px;
+  margin: 20px auto;
+  display: block;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.thank-you-note {
+  font-weight: 600;
+  color: #764ba2;
+}

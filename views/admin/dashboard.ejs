@@ -1,0 +1,72 @@
+<% layout('/layouts/boilerplate') %>
+
+<div class="container mt-4 mb-5">
+
+    <h1 class="mb-1"><i class="bi bi-shield-lock me-2"></i>Admin Dashboard</h1>
+    <p class="text-muted">
+        You can delete any post here, including illicit or wrong content
+        uploaded by anyone.
+    </p>
+
+    <p class="fw-bold">
+        Total resources: <%= resources.length %>
+    </p>
+
+    <% if(resources.length === 0){ %>
+
+        <div class="alert alert-secondary">No resources uploaded yet.</div>
+
+    <% } else { %>
+
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Subject</th>
+                        <th>Unit</th>
+                        <th>Type</th>
+                        <th>Branch</th>
+                        <th>Uploaded By</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% resources.forEach(resource => { %>
+                        <tr>
+                            <td>
+                                <a href="/resource/view/<%= resource._id %>">
+                                    <%= resource.title || "Study Resource" %>
+                                </a>
+                            </td>
+                            <td><%= resource.subject %></td>
+                            <td><%= resource.unit %></td>
+                            <td><%= resource.type %></td>
+                            <td><%= resource.branch %></td>
+                            <td>
+                                <%= resource.owner ? resource.owner.username : "Unknown" %>
+                            </td>
+                            <td>
+                                <%= resource.date ? new Date(resource.date).toLocaleDateString() : "-" %>
+                            </td>
+                            <td>
+                                <form
+                                    action="/resource/delete/<%= resource._id %>?_method=DELETE"
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this resource permanently?')"
+                                >
+                                    <button class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash-fill"></i> Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+    <% } %>
+
+</div>
