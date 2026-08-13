@@ -1,0 +1,93 @@
+<% layout('/layouts/boilerplate') %>
+
+<div class="container mt-4 mb-5">
+
+    <h1 class="mb-1"><i class="bi bi-journal-plus me-2"></i>Manage Subjects</h1>
+    <p class="text-muted">
+        Subjects added here immediately show up wherever students pick a
+        subject for Notes, Assignments and PYQs.
+    </p>
+
+    <a href="/admin/dashboard" class="btn btn-outline-secondary btn-sm mb-4">
+        <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </a>
+
+    <!-- ADD SUBJECT FORM -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Add New Subject</h5>
+
+            <form action="/admin/subjects" method="POST" class="row g-2 align-items-end">
+
+                <div class="col-sm-7">
+                    <label class="form-label">Subject Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        class="form-control"
+                        placeholder="e.g. Data Structures"
+                        required
+                    >
+                </div>
+
+                <div class="col-sm-3">
+                    <label class="form-label">Year</label>
+                    <select name="year" class="form-select" required>
+                        <option value="">Select Year</option>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-lg"></i> Add
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- EXISTING SUBJECTS -->
+    <% [1,2,3,4].forEach(year => { %>
+
+        <h5 class="mt-4">Year <%= year %></h5>
+
+        <% if(subjectsByYear[year].length === 0){ %>
+
+            <p class="text-muted">No subjects added yet.</p>
+
+        <% } else { %>
+
+            <ul class="list-group mb-3">
+
+                <% subjectsByYear[year].forEach(subject => { %>
+
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                        <%= subject.name %>
+
+                        <form
+                            action="/admin/subjects/<%= subject._id %>?_method=DELETE"
+                            method="POST"
+                            onsubmit="return confirm('Remove this subject? Existing uploaded resources for it are not affected.')"
+                        >
+                            <button class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+
+                    </li>
+
+                <% }) %>
+
+            </ul>
+
+        <% } %>
+
+    <% }) %>
+
+</div>
