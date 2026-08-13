@@ -7,6 +7,7 @@ const {
     renderNewResourcePage,
     renderResourceTypePage,
     renderSubjectPage,
+    renderPYQSubjectPage,
     createNewResource
 }=require("../controllers/resource.js");
 
@@ -31,6 +32,11 @@ router.route("/new")
 router.get("/",renderHomePage);
 
 router.get("/:year",renderBranchPage);
+
+// PYQs are the same for every branch, so this comes BEFORE the generic
+// "/:year/:branch" route and takes priority over it -- it skips the
+// branch-selection step entirely.
+router.get("/:year/pyq",wrapAsync(renderPYQSubjectPage));
 
 router.get("/:year/:branch",renderResourceTypePage);
 

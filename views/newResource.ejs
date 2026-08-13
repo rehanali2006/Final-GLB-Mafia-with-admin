@@ -45,12 +45,12 @@
 
         </div>
 
-        <!-- BRANCH -->
-        <div class="mb-3">
+        <!-- BRANCH (hidden for PYQ -- same across every branch) -->
+        <div class="mb-3" id="branchBlock">
 
             <label class="form-label">Branch</label>
 
-            <select name="branch" class="form-select" required>
+            <select name="branch" id="branchSelect" class="form-select">
 
                 <option value="">Select Branch</option>
 
@@ -169,6 +169,8 @@
 <script>
 (function () {
     const typeSelect = document.getElementById('typeSelect');
+    const branchBlock = document.getElementById('branchBlock');
+    const branchSelect = document.getElementById('branchSelect');
     const subjectBlock = document.getElementById('subjectBlock');
     const subjectSelect = document.getElementById('subjectSelect');
     const subjectHint = document.getElementById('subjectHint');
@@ -176,18 +178,24 @@
     const unitSelect = document.getElementById('unitSelect');
     const typeHint = document.getElementById('typeHint');
 
-    // Which types need a subject / unit field at all
+    // Which types need a branch / subject / unit field at all
+    const needsBranch = { "Notes": true, "Assignment": true, "Lab Manual": true, "Syllabus": true };
     const needsSubject = { "Notes": true, "Assignment": true, "PYQ": true };
     const needsUnit = { "Notes": true, "Assignment": true };
 
     const hints = {
-        "PYQ": "Upload a single PDF with all units (and years) of previous year questions for this subject.",
+        "PYQ": "Upload a single PDF with all units (and years) of previous year questions for this subject. PYQs are the same for every branch, so no branch is needed.",
         "Lab Manual": "Upload the lab manual PDF. No subject or unit needed \u2014 it's a standalone resource.",
         "Syllabus": "Upload one syllabus PDF that covers the whole year (all subjects). No subject or unit needed."
     };
 
     function updateFormFields() {
         const type = typeSelect.value;
+
+        const showBranch = !!needsBranch[type];
+        branchBlock.style.display = showBranch ? "" : "none";
+        branchSelect.required = showBranch;
+        if (!showBranch) branchSelect.value = "";
 
         const showSubject = !!needsSubject[type];
         subjectBlock.style.display = showSubject ? "" : "none";

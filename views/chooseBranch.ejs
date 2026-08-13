@@ -1,12 +1,33 @@
 <%layout("/layouts/boilerplate.ejs")%>
 
 <link rel="stylesheet" href="/css/chooseBranch.css">
+<link rel="stylesheet" href="/css/chooseResourceType.css">
 
 <div class="container mt-5 pb-5">
 
   <div class="text-center mb-5">
     <h2 class="page-heading">🏛️ <%= year %> Year</h2>
     <p class="page-sub">Select your branch to continue</p>
+  </div>
+
+  <div class="d-flex justify-content-center mb-5">
+    <a href="/home/<%= year %>/pyq" class="resource-card pyq" style="max-width: 280px;">
+
+      <div class="icon-wrapper">
+        <i class="bi bi-file-earmark-check-fill"></i>
+      </div>
+
+      <h2>PYQ</h2>
+
+      <p>
+        Same for every branch — explore all available PYQ resources
+      </p>
+
+      <span class="explore-btn">
+        Explore →
+      </span>
+
+    </a>
   </div>
 
   <div class="row g-4 justify-content-center">

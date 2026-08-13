@@ -13,11 +13,6 @@ const resourceTypes = [
         color: "assignment"
     },
     {
-        name: "PYQ",
-        icon: "bi-file-earmark-text-fill",
-        color: "pyq"
-    },
-    {
         name: "Lab Manual",
         icon: "bi-book-fill",
         color: "lab"
@@ -40,6 +35,12 @@ const resourceTypes = [
 
         <p>
             <%= year %> Year • <%= branch %>
+        </p>
+
+        <p class="mt-2">
+            <i class="bi bi-info-circle me-1"></i>
+            Looking for PYQs? They're the same for every branch —
+            <a href="/home/<%= year %>/pyq">click here</a>.
         </p>
 
     </div>

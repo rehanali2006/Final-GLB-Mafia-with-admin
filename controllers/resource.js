@@ -30,9 +30,20 @@ module.exports.renderResourceTypePage=(req,res)=>{
     res.render("chooseResourceType.ejs",{year,branch});
 }
 
+// /home/:year/pyq
+// PYQs are the same across every branch, so this skips branch selection
+// entirely and goes straight from Year -> Subject list for PYQ.
+module.exports.renderPYQSubjectPage=async(req,res)=>{
+    let {year}=req.params;
+    let currentYearSubjects = await Subject.find({year:Number(year)}).sort({name:1});
+    res.render("chooseSubject.ejs",{year,branch:null,type:"PYQ",currentYearSubjects});
+}
+
 // /home/:year/:branch/:type
 // - Lab Manual / Syllabus: no subject/unit at all -- go straight to the resource list
-// - Notes / Assignment / PYQ: show the subject list
+// - Notes / Assignment: show the subject list
+// - PYQ is no longer offered from here (see renderPYQSubjectPage above), but
+//   the route is left working in case anything still links to it directly.
 module.exports.renderSubjectPage=async(req,res)=>{
     let{year,branch,type}=req.params;
 
@@ -160,6 +171,7 @@ module.exports.createNewResource=async(req,res)=>{
     // resource types that don't use them.
     if(!body.subject) delete body.subject;
     if(!body.unit) delete body.unit;
+    if(!body.branch) delete body.branch;
 
     const newResource = new Resource(body);
     newResource.owner = req.userId;
