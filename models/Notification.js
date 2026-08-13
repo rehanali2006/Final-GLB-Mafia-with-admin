@@ -7,11 +7,11 @@ const notificationSchema=new mongoose.Schema({
     },
     subject:{
         type:String,
-        required:true,
+        // Not required: Lab Manual and Syllabus have no subject
     },
     unit:{
         type:Number,
-        required:true,
+        // Not required: PYQ, Lab Manual and Syllabus have no unit
     },
     year:{
         type:Number,

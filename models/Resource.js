@@ -20,6 +20,7 @@ const resourceSchema=new mongoose.Schema({
     },
     subject:{
         type:String
+        // Not required: Lab Manual and Syllabus resources don't belong to a subject
     },
     views:{
         type:Number,
@@ -27,7 +28,8 @@ const resourceSchema=new mongoose.Schema({
     },
     unit:{
         type:Number,
-        required:true,
+        // Not required anymore: PYQ (all units combined into one PDF),
+        // Lab Manual and Syllabus don't use a unit at all.
     },
     date:{
         type:Date,

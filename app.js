@@ -20,6 +20,7 @@ const feeRoute = require("./routes/feeRoute.js");
 const pageRoute = require("./routes/pageRoute.js");
 const adminRoute = require("./routes/adminRoute.js");
 const {ensureAdmin} = require("./utils/ensureAdmin.js");
+const {ensureSubjects} = require("./utils/ensureSubjects.js");
 
 
 const rateLimit=require("express-rate-limit");
@@ -65,6 +66,7 @@ main()
 .then(async ()=>{
     console.log("MongoDB connected successfully");
     await ensureAdmin();
+    await ensureSubjects();
 })
 .catch((err)=>{
     console.log("DB not connected ");

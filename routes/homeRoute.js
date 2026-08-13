@@ -20,7 +20,7 @@ const { upload } = require("../cloudinary.js");
 const wrapAsync=require("../utils/wrapAsync.js");
 
 router.route("/new")
-.get(isAuthenticated,renderNewResourcePage)
+.get(isAuthenticated,wrapAsync(renderNewResourcePage))
 .post(
     isAuthenticated,
     upload.single("file"),   // multer processes the file upload before validation
@@ -34,6 +34,6 @@ router.get("/:year",renderBranchPage);
 
 router.get("/:year/:branch",renderResourceTypePage);
 
-router.get("/:year/:branch/:type",renderSubjectPage);
+router.get("/:year/:branch/:type",wrapAsync(renderSubjectPage));
 
 module.exports=router;

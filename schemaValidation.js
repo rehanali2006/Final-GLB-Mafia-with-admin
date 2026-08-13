@@ -2,6 +2,12 @@ const Resource=require("./models/Resource");
 const User =require("./models/user");
 const Joi=require("joi");
 
+// Subjects are now managed dynamically by the admin (see models/Subject.js),
+// so we no longer hardcode a fixed list of allowed subject names here.
+// Whether subject/unit are required at all depends on the resource type:
+//   - Notes / Assignment : subject + unit required
+//   - PYQ                : subject required, unit NOT required (one PDF covers all units)
+//   - Lab Manual / Syllabus : neither subject nor unit required
 const resourceSchema=Joi.object({
     type:Joi.string().valid("Notes","Assignment","PYQ","Lab Manual","Syllabus").required(),
     year:Joi.number().min(1).max(4).required(),
@@ -9,53 +15,21 @@ const resourceSchema=Joi.object({
     section: Joi.string()
     .pattern(/^[A-Z]$/)
     .allow("", null),
-    subject:Joi.string().valid("Mathematics I",
-            "Mathematics II",
-            "Physics",
-            "Chemistry",
-            "Programming for Problem Solving",
-            "Electrical Engineering",
-            "Engineering Mechanics",
-            "Basic Electronics",
-            "Environmental Science",
-            "Workshop / Graphics",
-            "Data Structures",
-            "Computer Organization",
-            "Discrete Mathematics",
-            "OOPs",
-            "Digital Logic",
-            "DBMS",
-            "Operating Systems",
-            "Theory of Computation",
-            "Software Engineering",
-            "Web Technology",
-            "Computer Networks",
-            "Compiler Design",
-            "Machine Learning",
-            "Artificial Intelligence",
-            "Data Mining",
-            "Cloud Computing",
-            "Big Data",
-            "Cyber Security",
-            "Mobile Computing",
-            "Distributed Systems",
-            "Blockchain",
-            "IoT",
-            "Deep Learning",
-            "Project Phase 1",
-            "Elective I",
-            "Project Phase 2",
-            "Internship",
-            "Elective II",
-            "Seminar",
-            "Industry Training",
-        ).required(),
-        views:Joi.number().default(1),
-        unit:Joi.number().required(),
-        date:Joi.date(),
-        // file is handled by multer (multipart upload), not submitted as plain text body
-        file:Joi.string().allow("", null).optional(),
-        owner: Joi.string().hex().length(24),
+    subject:Joi.when("type",{
+        is:Joi.valid("Notes","Assignment","PYQ"),
+        then:Joi.string().required(),
+        otherwise:Joi.string().allow("", null).optional(),
+    }),
+    views:Joi.number().default(1),
+    unit:Joi.when("type",{
+        is:Joi.valid("Notes","Assignment"),
+        then:Joi.number().min(1).max(5).required(),
+        otherwise:Joi.number().allow("", null).optional(),
+    }),
+    date:Joi.date(),
+    // file is handled by multer (multipart upload), not submitted as plain text body
+    file:Joi.string().allow("", null).optional(),
+    owner: Joi.string().hex().length(24),
 })
 
 

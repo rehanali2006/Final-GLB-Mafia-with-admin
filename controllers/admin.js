@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.js");
 const Resource = require("../models/Resource.js");
+const Subject = require("../models/Subject.js");
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -48,4 +49,50 @@ module.exports.renderAdminDashboard = async (req, res) => {
         .populate("owner", "username email");
 
     res.render("admin/dashboard.ejs", { resources });
+};
+
+// --- Subject management ---
+// Subjects used to be a hardcoded list (utils/aktuSubjects.js); they now
+// live in the DB so the admin can add new ones from the website without
+// touching code.
+
+module.exports.renderSubjectsPage = async (req, res) => {
+    const subjects = await Subject.find({}).sort({ year: 1, name: 1 });
+
+    const subjectsByYear = { 1: [], 2: [], 3: [], 4: [] };
+    subjects.forEach((s) => {
+        if (!subjectsByYear[s.year]) subjectsByYear[s.year] = [];
+        subjectsByYear[s.year].push(s);
+    });
+
+    res.render("admin/subjects.ejs", { subjectsByYear });
+};
+
+module.exports.addSubject = async (req, res) => {
+    const { name, year } = req.body;
+
+    if (!name || !name.trim() || !year) {
+        req.flash("error", "Please provide both a subject name and a year");
+        return res.redirect("/admin/subjects");
+    }
+
+    try {
+        await Subject.create({ name: name.trim(), year: Number(year) });
+        req.flash("success", `"${name.trim()}" added to Year ${year}`);
+    } catch (err) {
+        if (err.code === 11000) {
+            req.flash("error", "That subject already exists for this year");
+        } else {
+            req.flash("error", "Could not add subject, please check the details");
+        }
+    }
+
+    res.redirect("/admin/subjects");
+};
+
+module.exports.deleteSubject = async (req, res) => {
+    const { id } = req.params;
+    await Subject.findByIdAndDelete(id);
+    req.flash("success", "Subject removed");
+    res.redirect("/admin/subjects");
 };

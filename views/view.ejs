@@ -27,19 +27,28 @@
 
             <div class="resource-info">
 
-                <span class="badge-item">
-                    <i class="bi bi-book"></i>
-                    <%= resource.subject %>
-                </span>
+                <% if(resource.subject){ %>
+                    <span class="badge-item">
+                        <i class="bi bi-book"></i>
+                        <%= resource.subject %>
+                    </span>
+                <% } %>
 
-                <span class="badge-item">
-                    <i class="bi bi-layers"></i>
-                    Unit <%= resource.unit %>
-                </span>
+                <% if(resource.unit){ %>
+                    <span class="badge-item">
+                        <i class="bi bi-layers"></i>
+                        Unit <%= resource.unit %>
+                    </span>
+                <% } %>
 
                 <span class="badge-item">
                     <i class="bi bi-file-earmark-text"></i>
                     <%= resource.type %>
+                </span>
+
+                <span class="badge-item">
+                    <i class="bi bi-person"></i>
+                    Uploaded by: <%= resource.owner && resource.owner.username ? resource.owner.username : "Unknown" %>
                 </span>
 
                 <span class="badge-item">
@@ -79,7 +88,11 @@
                     Download PDF
                 </a>
 
-                <% if(currentUser && ((resource.owner && resource.owner.toString() === currentUser._id.toString()) || currentUser.role === "admin")) { %>
+                <%
+                    // resource.owner is populated (a user doc), so compare its _id
+                    const ownerId = resource.owner && resource.owner._id ? resource.owner._id.toString() : "";
+                %>
+                <% if(currentUser && ((ownerId && ownerId === currentUser._id.toString()) || currentUser.role === "admin")) { %>
                 <form
                     action="/resource/delete/<%= resource._id %>?_method=DELETE"
                     method="POST"

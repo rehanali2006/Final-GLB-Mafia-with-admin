@@ -4,14 +4,14 @@
 
     <h2 class="mb-4">Add New Resource</h2>
 
-    <form action="/home/new" method="POST" enctype="multipart/form-data">
+    <form action="/home/new" method="POST" enctype="multipart/form-data" id="resourceForm">
 
         <!-- TYPE -->
         <div class="mb-3">
 
             <label class="form-label">Resource Type</label>
 
-            <select name="type" class="form-select" required>
+            <select name="type" id="typeSelect" class="form-select" required>
 
                 <option value="">Select Type</option>
 
@@ -22,6 +22,8 @@
                 <option value="Lab Manual">Lab Manual</option>
 
             </select>
+
+            <div class="form-text text-muted" id="typeHint"></div>
 
         </div>
 
@@ -84,20 +86,20 @@
 
         </div>
 
-        <!-- SUBJECT -->
-        <div class="mb-3">
+        <!-- SUBJECT (hidden for Lab Manual / Syllabus) -->
+        <div class="mb-3" id="subjectBlock">
 
             <label class="form-label">Subject</label>
 
-            <select name="subject" class="form-select" required>
+            <select name="subject" id="subjectSelect" class="form-select">
 
                 <option value="">Select Subject</option>
 
-                <% for(let year in aktuSubjects){ %>
+                <% for(let year in subjectsByYear){ %>
 
                     <optgroup label="Year <%= year %>">
 
-                        <% for(let subject of aktuSubjects[year]){ %>
+                        <% for(let subject of subjectsByYear[year]){ %>
 
                             <option value="<%= subject %>">
                                 <%= subject %>
@@ -111,14 +113,16 @@
 
             </select>
 
+            <div class="form-text text-muted" id="subjectHint"></div>
+
         </div>
 
-        <!-- UNIT -->
-        <div class="mb-3">
+        <!-- UNIT (hidden for PYQ / Lab Manual / Syllabus) -->
+        <div class="mb-3" id="unitBlock">
 
             <label class="form-label">Unit</label>
 
-            <select name="unit" class="form-select" required>
+            <select name="unit" id="unitSelect" class="form-select">
 
                 <option value="">Select Unit</option>
 
@@ -161,3 +165,45 @@
     </form>
 
 </div>
+
+<script>
+(function () {
+    const typeSelect = document.getElementById('typeSelect');
+    const subjectBlock = document.getElementById('subjectBlock');
+    const subjectSelect = document.getElementById('subjectSelect');
+    const subjectHint = document.getElementById('subjectHint');
+    const unitBlock = document.getElementById('unitBlock');
+    const unitSelect = document.getElementById('unitSelect');
+    const typeHint = document.getElementById('typeHint');
+
+    // Which types need a subject / unit field at all
+    const needsSubject = { "Notes": true, "Assignment": true, "PYQ": true };
+    const needsUnit = { "Notes": true, "Assignment": true };
+
+    const hints = {
+        "PYQ": "Upload a single PDF with all units (and years) of previous year questions for this subject.",
+        "Lab Manual": "Upload the lab manual PDF. No subject or unit needed \u2014 it's a standalone resource.",
+        "Syllabus": "Upload one syllabus PDF that covers the whole year (all subjects). No subject or unit needed."
+    };
+
+    function updateFormFields() {
+        const type = typeSelect.value;
+
+        const showSubject = !!needsSubject[type];
+        subjectBlock.style.display = showSubject ? "" : "none";
+        subjectSelect.required = showSubject;
+        if (!showSubject) subjectSelect.value = "";
+
+        const showUnit = !!needsUnit[type];
+        unitBlock.style.display = showUnit ? "" : "none";
+        unitSelect.required = showUnit;
+        if (!showUnit) unitSelect.value = "";
+
+        typeHint.textContent = hints[type] || "";
+    }
+
+    typeSelect.addEventListener('change', updateFormFields);
+    document.addEventListener('DOMContentLoaded', updateFormFields);
+    updateFormFields();
+})();
+</script>

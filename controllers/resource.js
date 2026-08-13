@@ -1,19 +1,20 @@
 const Resource=require("../models/Resource.js");
+const Subject=require("../models/Subject.js");
 const Notification=require("../models/Notification.js");
-const aktuSubjects=require("../utils/aktuSubjects.js");
 const { cloudinary } = require("../cloudinary.js");
 const {getIo,getOnlineUsers}=require("../socket.js");
 
 const client=require("../redis.js");
 
-
+// Types that don't need a subject at all (one PDF covers everything for that type)
+const NO_SUBJECT_TYPES=["Lab Manual","Syllabus"];
+// Types that don't use a unit at all
+const NO_UNIT_TYPES=["PYQ","Lab Manual","Syllabus"];
 
 function constructKey(req){
     const baseUrl=req.path.replace(/^\/+|\/+$/g,'').replace(/\//g,':');
     return baseUrl;
 }
-
-
 
 module.exports.renderHomePage=(req,res)=>{
     res.render("home.ejs");
@@ -29,16 +30,67 @@ module.exports.renderResourceTypePage=(req,res)=>{
     res.render("chooseResourceType.ejs",{year,branch});
 }
 
-module.exports.renderSubjectPage=(req,res)=>{
+// /home/:year/:branch/:type
+// - Lab Manual / Syllabus: no subject/unit at all -- go straight to the resource list
+// - Notes / Assignment / PYQ: show the subject list
+module.exports.renderSubjectPage=async(req,res)=>{
     let{year,branch,type}=req.params;
-    let currentYearSubjects=aktuSubjects[year];
+
+    if(NO_SUBJECT_TYPES.includes(type)){
+        const key=constructKey(req);
+        const cached=await client.get(key);
+
+        if(cached){
+            const resources=JSON.parse(cached);
+            return res.render("viewResources.ejs",{resources,type,year,branch,subject:null,unit:null});
+        }
+
+        let resources=await Resource.find({
+            type,
+            year:Number(year),
+            branch,
+        }).sort({views:-1}).populate("owner","username");
+
+        if(resources.length>0){
+            await client.set(key,JSON.stringify(resources),{EX:1000,NX:true});
+        }
+
+        return res.render("viewResources.ejs",{resources,type,year,branch,subject:null,unit:null});
+    }
+
+    let currentYearSubjects = await Subject.find({year:Number(year)}).sort({name:1});
     res.render("chooseSubject.ejs",{year,branch,type,currentYearSubjects});
 }
 
-module.exports.renderUnitPage=(req,res)=>{
+// /resource/:type/:subject
+// - PYQ: no unit -- go straight to the resource list (one PDF covers all units)
+// - Notes / Assignment: show the unit list
+module.exports.renderUnitPage=async(req,res)=>{
     let {type,subject}=req.params;
     // decode so the view gets the human-readable subject name
     subject = decodeURIComponent(subject);
+
+    if(NO_UNIT_TYPES.includes(type)){
+        const key=constructKey(req);
+        const cached=await client.get(key);
+
+        if(cached){
+            const resources=JSON.parse(cached);
+            return res.render("viewResources.ejs",{resources,type,subject,unit:null});
+        }
+
+        let resources=await Resource.find({
+            type,
+            subject,
+        }).sort({views:-1}).populate("owner","username");
+
+        if(resources.length>0){
+            await client.set(key,JSON.stringify(resources),{EX:1000,NX:true});
+        }
+
+        return res.render("viewResources.ejs",{resources,type,subject,unit:null});
+    }
+
     res.render("chooseUnit.ejs",{type,subject});
 }
 
@@ -50,13 +102,9 @@ module.exports.viewResourcePage=async(req,res)=>{
 
     const key=constructKey(req);
     const data = await client.get(key);
-    console.log(key);
 
     if(data){
-        console.log("cache hit");
         const resources=JSON.parse(data);
-        // Bug fix: must pass type/decodedSubject/unit even on cache hit
-        // so the notify button can render correctly
         return res.render("viewResources.ejs",{resources,type,subject:decodedSubject,unit});
     }
 
@@ -67,11 +115,9 @@ module.exports.viewResourcePage=async(req,res)=>{
     }).sort({views:-1}).populate("owner","username");
 
     if(resources.length===0){
-        // No resources — render with params so notify button works
+        // No resources -- render with params so notify button works
         return res.render("viewResources.ejs",{resources,type,subject:decodedSubject,unit});
     }
-
-    console.log("cache miss");
 
     await client.set(key,JSON.stringify(resources),{
       EX:1000,
@@ -83,7 +129,8 @@ module.exports.viewResourcePage=async(req,res)=>{
 
 module.exports.viewPage=async (req, res) => {
     let { id } = req.params;
-    let resource = await Resource.findByIdAndUpdate(id,{$inc:{views:1}},{returnDocument:"after"});
+    let resource = await Resource.findByIdAndUpdate(id,{$inc:{views:1}},{returnDocument:"after"})
+        .populate("owner","username");
     if(!resource){
         req.flash("error","Some error occured, Try again!!");
         return res.redirect("/home");
@@ -91,8 +138,14 @@ module.exports.viewPage=async (req, res) => {
     res.render("view.ejs",{resource});
 }
 
-module.exports.renderNewResourcePage=(req,res)=>{
-    res.render("newResource.ejs",{aktuSubjects});
+module.exports.renderNewResourcePage=async(req,res)=>{
+    const subjects = await Subject.find({}).sort({year:1,name:1});
+    const subjectsByYear = {1:[],2:[],3:[],4:[]};
+    subjects.forEach(s=>{
+        if(!subjectsByYear[s.year]) subjectsByYear[s.year]=[];
+        subjectsByYear[s.year].push(s.name);
+    });
+    res.render("newResource.ejs",{subjectsByYear});
 }
 
 
@@ -102,7 +155,13 @@ module.exports.createNewResource=async(req,res)=>{
         return res.redirect("/home/new");
     }
 
-    const newResource = new Resource(req.body);
+    const body={...req.body};
+    // Drop empty subject/unit so they don't get saved as "" / 0 for
+    // resource types that don't use them.
+    if(!body.subject) delete body.subject;
+    if(!body.unit) delete body.unit;
+
+    const newResource = new Resource(body);
     newResource.owner = req.userId;
     newResource.file = req.file.path;
     newResource.cloudinaryId = req.file.filename;
@@ -111,16 +170,23 @@ module.exports.createNewResource=async(req,res)=>{
     await client.flushDb();
 
     // --- Notify subscribers ---
-    const pendingNotifications=await Notification.find({
+    const notifQuery={
         type:newResource.type,
-        subject:newResource.subject,
-        unit:newResource.unit,
         notified:false,
-    });
+    };
+    if(newResource.subject) notifQuery.subject=newResource.subject;
+    if(newResource.unit) notifQuery.unit=newResource.unit;
+
+    const pendingNotifications=await Notification.find(notifQuery);
 
     if(pendingNotifications.length>0){
         const io=getIo();
         const onlineUsers=getOnlineUsers();
+
+        let message=`A new ${newResource.type}`;
+        if(newResource.subject) message+=` for ${newResource.subject}`;
+        if(newResource.unit) message+=` Unit ${newResource.unit}`;
+        message+=` has been uploaded!`;
 
         for(const notif of pendingNotifications){
             const userId=notif.user.toString();
@@ -128,7 +194,7 @@ module.exports.createNewResource=async(req,res)=>{
 
             if(socketId){
                 io.to(socketId).emit("resourceUploaded",{
-                    message:`A new ${newResource.type} for ${newResource.subject} Unit ${newResource.unit} has been uploaded!`,
+                    message,
                     type:newResource.type,
                     subject:newResource.subject,
                     unit:newResource.unit,
@@ -156,23 +222,26 @@ module.exports.deleteResource=async(req,res)=>{
     res.redirect("/");
 }
 
-// Subscribe to get notified when a resource matching type+subject+unit is uploaded
+// Subscribe to get notified when a resource matching type(+subject)(+unit) is uploaded
 module.exports.subscribeNotification=async(req,res)=>{
-    const {type,unit}=req.params;
+    const {type}=req.params;
 
-    // Bug fix: decode subject from URL params — it arrives encoded from the form action
-    const subject=decodeURIComponent(req.params.subject);
+    // Bug fix: decode subject from URL params -- it arrives encoded from the form action
+    const subject = req.params.subject ? decodeURIComponent(req.params.subject) : undefined;
+    const unit = req.params.unit ? Number(req.params.unit) : undefined;
 
     const {year,branch}=req.body;
 
     // Prevent duplicate subscriptions for same user + resource combo
-    const existing=await Notification.findOne({
+    const existingQuery={
         type,
-        subject,
-        unit:Number(unit),
         user:req.userId,
         notified:false,
-    });
+    };
+    if(subject) existingQuery.subject=subject;
+    if(unit) existingQuery.unit=unit;
+
+    const existing=await Notification.findOne(existingQuery);
 
     if(existing){
         req.flash("error","You are already subscribed for this resource");
@@ -182,7 +251,7 @@ module.exports.subscribeNotification=async(req,res)=>{
     const newNotification=new Notification({
         type,
         subject,
-        unit:Number(unit),
+        unit,
         year:Number(year)||1,
         branch:branch||"CSE",
         user:req.userId,

@@ -17,10 +17,18 @@
 
     <div class="subject-grid">
 
+        <% if(currentYearSubjects.length === 0){ %>
+
+            <p class="text-center w-100">
+                No subjects have been added for this year yet.
+            </p>
+
+        <% } %>
+
         <% currentYearSubjects.forEach(subject => { %>
 
             <a
-                href="/resource/<%= type %>/<%= encodeURIComponent(subject) %>"
+                href="/resource/<%= type %>/<%= encodeURIComponent(subject.name) %>"
                 class="subject-card"
             >
 
@@ -28,7 +36,7 @@
                     <i class="bi bi-book-half"></i>
                 </div>
 
-                <h3><%= subject %></h3>
+                <h3><%= subject.name %></h3>
 
                 <span class="view-btn">
                     View Resources →

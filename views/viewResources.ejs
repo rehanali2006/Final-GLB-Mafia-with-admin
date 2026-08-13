@@ -26,18 +26,21 @@
             <% if(currentUser){ %>
 
                 <%
-                    // subject is already decoded plain text at this point
-                    // encodeURIComponent it for the form action URL
-                    const notifyAction = "/resource/notify/"
-                        + encodeURIComponent(type) + "/"
-                        + encodeURIComponent(subject) + "/"
-                        + encodeURIComponent(unit);
+                    // subject/unit are already decoded plain values here (or
+                    // null/undefined for types that don't use them).
+                    // Build the notify URL with only the segments that apply.
+                    let notifyAction = "/resource/notify/" + encodeURIComponent(type);
+                    if(typeof subject !== "undefined" && subject){
+                        notifyAction += "/" + encodeURIComponent(subject);
+                    }
+                    if(typeof unit !== "undefined" && unit){
+                        notifyAction += "/" + encodeURIComponent(unit);
+                    }
                 %>
 
                 <form action="<%= notifyAction %>" method="POST" class="notify-form mt-3">
-                    <!-- year and branch are not in scope here; controller accepts defaults -->
-                    <input type="hidden" name="year" value="1">
-                    <input type="hidden" name="branch" value="CSE">
+                    <input type="hidden" name="year" value="<%= typeof year !== 'undefined' && year ? year : 1 %>">
+                    <input type="hidden" name="branch" value="<%= typeof branch !== 'undefined' && branch ? branch : 'CSE' %>">
                     <button type="submit" class="btn btn-notify">
                         <i class="bi bi-bell me-2"></i>
                         Notify Me When Available
@@ -89,15 +92,19 @@
 
                         <div class="resource-meta">
 
-                            <span>
-                                <i class="bi bi-book"></i>
-                                <%= resource.subject %>
-                            </span>
+                            <% if(resource.subject){ %>
+                                <span>
+                                    <i class="bi bi-book"></i>
+                                    <%= resource.subject %>
+                                </span>
+                            <% } %>
 
-                            <span>
-                                <i class="bi bi-layers"></i>
-                                Unit <%= resource.unit %>
-                            </span>
+                            <% if(resource.unit){ %>
+                                <span>
+                                    <i class="bi bi-layers"></i>
+                                    Unit <%= resource.unit %>
+                                </span>
+                            <% } %>
 
                             <span>
                                 <i class="bi bi-file-earmark"></i>
@@ -106,7 +113,7 @@
 
                             <span>
                                 <i class="bi bi-person"></i>
-                                Owner: <%= resource.owner.username %>
+                                Uploaded by: <%= resource.owner && resource.owner.username ? resource.owner.username : "Unknown" %>
                             </span>
 
                             <span>
