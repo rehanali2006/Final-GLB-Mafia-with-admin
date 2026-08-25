@@ -5,7 +5,6 @@ module.exports.renderFeePage = async (req, res) => {
     res.render("feeStructure.ejs", { fees });
 };
 
-// Adds a new year's fee, or updates it if that year already exists
 module.exports.saveFee = async (req, res) => {
     const { year, collegeFee, hostelFee } = req.body;
 

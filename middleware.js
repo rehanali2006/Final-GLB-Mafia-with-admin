@@ -69,8 +69,7 @@ module.exports.isAdmin = (req, res, next) => {
     next();
 };
 
-// Like isOwner, but also lets the admin through so they can delete
-// any resource (illicit/wrong content, etc.), not just their own.
+
 module.exports.isOwnerOrAdmin = async (req, res, next) => {
     const { id } = req.params;
 

@@ -1,6 +1,6 @@
 const resources = [
 
-  // ================= FIRST YEAR =================
+    //first year
 
   {
     type: "Notes",

@@ -20,7 +20,7 @@ const storage = new CloudinaryStorage({
     },
 });
 
-// Multer upload with PDF-only filter
+
 const upload = multer({
     storage,
     fileFilter: (req, file, cb) => {
@@ -31,7 +31,7 @@ const upload = multer({
         }
     },
     limits: {
-        fileSize: 20 * 1024 * 1024, // 20MB max
+        fileSize: 20 * 1024 * 1024, 
     },
 });
 

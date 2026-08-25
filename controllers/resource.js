@@ -3,12 +3,36 @@ const Subject=require("../models/Subject.js");
 const Notification=require("../models/Notification.js");
 const { cloudinary } = require("../cloudinary.js");
 const {getIo,getOnlineUsers}=require("../socket.js");
+const { analyzePdf } = require("../utils/vision.js");
 
 const client=require("../redis.js");
 
-// Types that don't need a subject at all (one PDF covers everything for that type)
+
+async function runContentAnalysis(resourceId, fileUrl){
+    try{
+        const result = await analyzePdf(fileUrl);
+
+        if(result===null){
+            await Resource.findByIdAndUpdate(resourceId,{analysisStatus:"skipped"});
+            return;
+        }
+
+        await Resource.findByIdAndUpdate(resourceId,{
+            keywords:result.keywords,
+            extractedText:result.text,
+            analysisStatus:"done",
+        });
+
+
+        await client.flushDb().catch(()=>{});
+    }catch(err){
+        console.error("Content analysis (Vision API) failed:",err.message);
+        await Resource.findByIdAndUpdate(resourceId,{analysisStatus:"failed"}).catch(()=>{});
+    }
+}
+
 const NO_SUBJECT_TYPES=["Lab Manual","Syllabus"];
-// Types that don't use a unit at all
+
 const NO_UNIT_TYPES=["PYQ","Lab Manual","Syllabus"];
 
 function constructKey(req){
@@ -30,20 +54,13 @@ module.exports.renderResourceTypePage=(req,res)=>{
     res.render("chooseResourceType.ejs",{year,branch});
 }
 
-// /home/:year/pyq
-// PYQs are the same across every branch, so this skips branch selection
-// entirely and goes straight from Year -> Subject list for PYQ.
 module.exports.renderPYQSubjectPage=async(req,res)=>{
     let {year}=req.params;
     let currentYearSubjects = await Subject.find({year:Number(year)}).sort({name:1});
     res.render("chooseSubject.ejs",{year,branch:null,type:"PYQ",currentYearSubjects});
 }
 
-// /home/:year/:branch/:type
-// - Lab Manual / Syllabus: no subject/unit at all -- go straight to the resource list
-// - Notes / Assignment: show the subject list
-// - PYQ is no longer offered from here (see renderPYQSubjectPage above), but
-//   the route is left working in case anything still links to it directly.
+
 module.exports.renderSubjectPage=async(req,res)=>{
     let{year,branch,type}=req.params;
 
@@ -73,12 +90,8 @@ module.exports.renderSubjectPage=async(req,res)=>{
     res.render("chooseSubject.ejs",{year,branch,type,currentYearSubjects});
 }
 
-// /resource/:type/:subject
-// - PYQ: no unit -- go straight to the resource list (one PDF covers all units)
-// - Notes / Assignment: show the unit list
 module.exports.renderUnitPage=async(req,res)=>{
     let {type,subject}=req.params;
-    // decode so the view gets the human-readable subject name
     subject = decodeURIComponent(subject);
 
     if(NO_UNIT_TYPES.includes(type)){
@@ -108,7 +121,6 @@ module.exports.renderUnitPage=async(req,res)=>{
 module.exports.viewResourcePage=async(req,res)=>{
     let{type,subject,unit}=req.params;
 
-    // Always decode subject from URL so DB queries and view variables are consistent
     const decodedSubject=decodeURIComponent(subject);
 
     const key=constructKey(req);
@@ -126,7 +138,6 @@ module.exports.viewResourcePage=async(req,res)=>{
     }).sort({views:-1}).populate("owner","username");
 
     if(resources.length===0){
-        // No resources -- render with params so notify button works
         return res.render("viewResources.ejs",{resources,type,subject:decodedSubject,unit});
     }
 
@@ -167,8 +178,7 @@ module.exports.createNewResource=async(req,res)=>{
     }
 
     const body={...req.body};
-    // Drop empty subject/unit so they don't get saved as "" / 0 for
-    // resource types that don't use them.
+
     if(!body.subject) delete body.subject;
     if(!body.unit) delete body.unit;
     if(!body.branch) delete body.branch;
@@ -180,8 +190,8 @@ module.exports.createNewResource=async(req,res)=>{
 
     await newResource.save();
     await client.flushDb();
+    runContentAnalysis(newResource._id, newResource.file);
 
-    // --- Notify subscribers ---
     const notifQuery={
         type:newResource.type,
         notified:false,
@@ -217,7 +227,7 @@ module.exports.createNewResource=async(req,res)=>{
             await notif.save();
         }
     }
-    // --- End notify ---
+
 
     req.flash("success", "Resource uploaded successfully!");
     res.redirect("/");
@@ -234,17 +244,14 @@ module.exports.deleteResource=async(req,res)=>{
     res.redirect("/");
 }
 
-// Subscribe to get notified when a resource matching type(+subject)(+unit) is uploaded
 module.exports.subscribeNotification=async(req,res)=>{
     const {type}=req.params;
 
-    // Bug fix: decode subject from URL params -- it arrives encoded from the form action
     const subject = req.params.subject ? decodeURIComponent(req.params.subject) : undefined;
     const unit = req.params.unit ? Number(req.params.unit) : undefined;
 
     const {year,branch}=req.body;
 
-    // Prevent duplicate subscriptions for same user + resource combo
     const existingQuery={
         type,
         user:req.userId,

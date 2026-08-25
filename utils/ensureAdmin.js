@@ -1,11 +1,4 @@
-// Creates (or syncs) the ONE admin account from environment variables.
-// There is no signup form for this - it's provisioned here at server
-// startup, and logged into via the separate /admin/login page.
-//
-// Add these to your .env file:
-//   ADMIN_EMAIL=you@example.com
-//   ADMIN_PASSWORD=some-strong-password
-//   ADMIN_USERNAME=admin           (optional, defaults to "admin")
+
 
 const User = require("../models/user.js");
 
@@ -41,10 +34,9 @@ module.exports.ensureAdmin = async function ensureAdmin() {
         changed = true;
     }
 
-    // Keep the admin's password in sync with .env, in case it was changed there
     const passwordMatches = await admin.comparePassword(password);
     if (!passwordMatches) {
-        admin.password = password; // pre-save hook rehashes it
+        admin.password = password; 
         changed = true;
     }
 

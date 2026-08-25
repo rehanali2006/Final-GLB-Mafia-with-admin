@@ -7,11 +7,9 @@ const notificationSchema=new mongoose.Schema({
     },
     subject:{
         type:String,
-        // Not required: Lab Manual and Syllabus have no subject
     },
     unit:{
         type:Number,
-        // Not required: PYQ, Lab Manual and Syllabus have no unit
     },
     year:{
         type:Number,
@@ -36,7 +34,7 @@ const notificationSchema=new mongoose.Schema({
     }
 });
 
-// Index so we can quickly find all pending subscribers for a given resource
+
 notificationSchema.index({ type:1, subject:1, unit:1, notified:1 });
 
 const Notification=mongoose.model("Notification",notificationSchema);

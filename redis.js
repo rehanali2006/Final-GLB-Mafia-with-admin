@@ -12,7 +12,7 @@ client.on("connect", () => {
     console.log("Redis connected successfully");
 });
 
-// Connect immediately — async IIFE so we can properly await it
+
 (async () => {
     try {
         await client.connect();

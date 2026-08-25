@@ -2,14 +2,6 @@ const Resource=require("./models/Resource");
 const User =require("./models/user");
 const Joi=require("joi");
 
-// Subjects are now managed dynamically by the admin (see models/Subject.js),
-// so we no longer hardcode a fixed list of allowed subject names here.
-// Whether subject/unit/branch are required depends on the resource type:
-//   - Notes / Assignment    : branch + subject + unit required
-//   - PYQ                   : subject required; branch and unit NOT required
-//                             (PYQs are the same across every branch, and one
-//                             PDF covers all units)
-//   - Lab Manual / Syllabus : branch required, subject/unit NOT required
 const resourceSchema=Joi.object({
     type:Joi.string().valid("Notes","Assignment","PYQ","Lab Manual","Syllabus").required(),
     year:Joi.number().min(1).max(4).required(),
@@ -33,7 +25,6 @@ const resourceSchema=Joi.object({
         otherwise:Joi.number().allow("", null).optional(),
     }),
     date:Joi.date(),
-    // file is handled by multer (multipart upload), not submitted as plain text body
     file:Joi.string().allow("", null).optional(),
     owner: Joi.string().hex().length(24),
 })

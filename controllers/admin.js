@@ -18,7 +18,7 @@ module.exports.renderAdminLoginPage = (req, res) => {
     res.render("admin/login.ejs");
 };
 
-// Admin logs in here - there is no signup route for this account.
+
 module.exports.adminLogin = async (req, res) => {
     const { email, password } = req.body;
 
@@ -51,10 +51,6 @@ module.exports.renderAdminDashboard = async (req, res) => {
     res.render("admin/dashboard.ejs", { resources });
 };
 
-// --- Subject management ---
-// Subjects used to be a hardcoded list (utils/aktuSubjects.js); they now
-// live in the DB so the admin can add new ones from the website without
-// touching code.
 
 module.exports.renderSubjectsPage = async (req, res) => {
     const subjects = await Subject.find({}).sort({ year: 1, name: 1 });

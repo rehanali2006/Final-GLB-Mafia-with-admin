@@ -12,7 +12,7 @@ const wrapAsync = require("../utils/wrapAsync.js");
 
 router.get("/", wrapAsync(renderFacultyPage));
 
-// Adding teacher details requires login, same as adding a resource
+
 router.post("/", isAuthenticated, wrapAsync(createTeacher));
 
 router.delete("/:id", isAuthenticated, wrapAsync(deleteTeacher));

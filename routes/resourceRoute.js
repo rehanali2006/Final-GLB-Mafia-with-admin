@@ -32,12 +32,6 @@ router.delete(
     wrapAsync(deleteResource)
 );
 
-// Notify me when resource is uploaded
-// Express 5 no longer supports the ":name?" optional-param syntax, so we
-// register one explicit route per combination instead:
-//   Notes / Assignment -> /notify/:type/:subject/:unit
-//   PYQ                -> /notify/:type/:subject
-//   Lab Manual/Syllabus -> /notify/:type
 router.post(
     "/notify/:type/:subject/:unit",
     isAuthenticated,

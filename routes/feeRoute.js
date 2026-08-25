@@ -12,7 +12,6 @@ const wrapAsync = require("../utils/wrapAsync.js");
 
 router.get("/", wrapAsync(renderFeePage));
 
-// Adding/updating fee details requires login, same as adding a resource
 router.post("/", isAuthenticated, wrapAsync(saveFee));
 
 router.delete("/:id", isAuthenticated, wrapAsync(deleteFee));

@@ -1,6 +1,4 @@
-// Seeds the Subject collection from the old hardcoded aktuSubjects list,
-// but only the very first time (i.e. if no subjects exist yet in the DB).
-// After that, subjects are fully managed by the admin from /admin/subjects.
+
 
 const Subject = require("../models/Subject.js");
 const aktuSubjects = require("./aktuSubjects.js");

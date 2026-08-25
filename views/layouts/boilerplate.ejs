@@ -24,6 +24,9 @@
 
     <link rel="stylesheet" href="/css/boilerplate.css">
 
+    <!-- Gemini chatbot widget CSS -->
+    <link rel="stylesheet" href="/css/chatbot.css">
+
 </head>
 
 <body>
@@ -284,6 +287,38 @@
         });
     })();
     </script>
+
+    <!-- Gemini-powered chatbot widget -->
+    <button id="gemini-chat-toggle" title="Chat with GLB Assistant" aria-label="Open chatbot">
+        <i class="bi bi-chat-dots-fill"></i>
+    </button>
+
+    <div id="gemini-chat-panel">
+        <div class="gemini-chat-header">
+            <div class="gemini-chat-header-title">
+                <i class="bi bi-stars"></i>
+                <span>GLB Assistant</span>
+            </div>
+            <button id="gemini-chat-close" aria-label="Close chatbot">✕</button>
+        </div>
+
+        <div id="gemini-chat-messages"></div>
+
+        <form id="gemini-chat-form" class="gemini-chat-input-row">
+            <input
+                type="text"
+                id="gemini-chat-input"
+                placeholder="Ask me anything..."
+                autocomplete="off"
+                maxlength="1000"
+            />
+            <button type="submit" id="gemini-chat-send" aria-label="Send message">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+
+    <script src="/js/chatbot.js"></script>
 
 </body>
 

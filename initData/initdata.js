@@ -12,10 +12,9 @@ main()
     console.log("DB not connected ");
 })
 
-//obtaining models
 const Resource=require("../models/Resource.js");
 
-//obtain seed data
+
 const seedData=require("./seed.js");
 
 

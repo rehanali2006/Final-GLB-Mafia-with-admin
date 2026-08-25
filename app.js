@@ -19,6 +19,7 @@ const facultyRoute = require("./routes/facultyRoute.js");
 const feeRoute = require("./routes/feeRoute.js");
 const pageRoute = require("./routes/pageRoute.js");
 const adminRoute = require("./routes/adminRoute.js");
+const chatbotRoute = require("./routes/chatbotRoute.js");
 const {ensureAdmin} = require("./utils/ensureAdmin.js");
 const {ensureSubjects} = require("./utils/ensureSubjects.js");
 
@@ -33,12 +34,14 @@ app.use(limit);
 app.use(cookieParser());
 
 
-//serving static files
+//static files
 const path =require("path");
 app.use(express.static(path.join(__dirname,"public")));
 
 //allow server to listen to requests like post
 app.use(express.urlencoded({extended:true}));
+// JSON body parsing 
+app.use(express.json());
 
 
 //ejs
@@ -110,6 +113,7 @@ app.use("/faculty",facultyRoute);
 app.use("/fee-structure",feeRoute);
 app.use("/about",pageRoute);
 app.use("/admin",adminRoute);
+app.use("/chatbot",chatbotRoute);
 
 
 app.use((req,res,next)=>{

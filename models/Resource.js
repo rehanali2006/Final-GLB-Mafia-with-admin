@@ -20,7 +20,6 @@ const resourceSchema=new mongoose.Schema({
     },
     subject:{
         type:String
-        // Not required: Lab Manual and Syllabus resources don't belong to a subject
     },
     views:{
         type:Number,
@@ -28,8 +27,7 @@ const resourceSchema=new mongoose.Schema({
     },
     unit:{
         type:Number,
-        // Not required anymore: PYQ (all units combined into one PDF),
-        // Lab Manual and Syllabus don't use a unit at all.
+
     },
     date:{
         type:Date,
@@ -38,16 +36,28 @@ const resourceSchema=new mongoose.Schema({
     file:{
         type:String,
         required:true,
-        // Stores the Cloudinary secure URL of the PDF
     },
     cloudinaryId:{
         type:String,
-        // Stores the Cloudinary public_id for deletion
     },
     owner:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
         required:true,
+    },
+    keywords:{
+        type:[String],
+        default:[],
+    },
+    extractedText:{
+        type:String,
+        default:"",
+    },
+    analysisStatus:{
+        type:String,
+        enum:["pending","done","failed","skipped"],
+        default:"pending",
+       
     }
 });
 resourceSchema.index({
